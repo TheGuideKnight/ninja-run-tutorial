@@ -1,9 +1,10 @@
 extends KinematicBody2D
 
 onready var animated_sprite = $AnimatedSprite
+onready var reset_timer = $ResetLevelTimer
 
 export var max_glide_speed = 150
-export var max_speed = 400
+export var max_speed = 600
 export var jump_impulse = 900
 export var gravity = 40
 
@@ -12,7 +13,8 @@ enum {
 	RUN,
 	JUMP,
 	GLIDE,
-	FALL
+	FALL,
+	DEAD
 }
 
 var velocity = Vector2()
@@ -23,6 +25,9 @@ var state = IDLE
 signal player_location
 
 func _physics_process(delta):
+	if state == DEAD:
+		return
+
 	if Input.is_action_pressed("move_left"):
 		velocity.x -= acceleration
 	
@@ -34,8 +39,17 @@ func _physics_process(delta):
 		
 	adjust_velocity()
 	velocity = move_and_slide(velocity, Vector2.UP)
+
+	var c = get_slide_count()
+	for i in range(c):
+		var collision = get_slide_collision(i)
+		var collider = collision.collider
+		if collider.get_meta("type") == "enemy":
+			state = DEAD
+			reset_timer.start(1)
+	
 	animate_player()
-	emit_signal("player_location", global_position.x)
+	emit_signal("player_location", global_position.x, global_position.y)
 	
 	
 func adjust_velocity():
@@ -51,12 +65,15 @@ func adjust_velocity():
 		velocity.y = min(velocity.y, max_speed)
 	
 func animate_player():
-	if velocity.x < 0.01 and not Input.is_action_pressed("move_right"):
+	if velocity.x < -0.01 and not Input.is_action_pressed("move_right"):
 		animated_sprite.flip_h = true
 	elif velocity.x > 0.01 and not Input.is_action_pressed("move_left"):
 		animated_sprite.flip_h = false
 		
 	match state:
+		DEAD:
+			animated_sprite.play("dead")
+			return
 		FALL:
 			animated_sprite.play("fall")
 		GLIDE:
@@ -81,3 +98,11 @@ func animate_player():
 	elif velocity.x != 0:
 		state = RUN
 	
+
+
+func _on_ResetLevelTimer_timeout():
+	get_tree().change_scene("res://world/World.tscn")
+
+
+func _on_Player_player_location():
+	pass # Replace with function body.

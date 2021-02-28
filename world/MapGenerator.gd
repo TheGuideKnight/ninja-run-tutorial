@@ -174,7 +174,7 @@ func _on_Timer_timeout():
 	tile_map.set_cell(2,2,-1)
 
 
-func _on_Player_player_location(position_x):
+func _on_Player_player_location(position_x, position_y):
 	var current_cell_position = floor(position_x / cell_width)
 	if current_cell_position > current_batch_start_x + batch_size:
 		current_batch_start_x += batch_size
