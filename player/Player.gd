@@ -3,13 +3,9 @@ extends KinematicBody2D
 onready var animated_sprite = $AnimatedSprite
 
 export var max_glide_speed = 150
-export var max_speed = 600
+export var max_speed = 400
 export var jump_impulse = 900
 export var gravity = 40
-
-var velocity = Vector2()
-var friction = 200
-var acceleration = 350
 
 enum {
 	IDLE,
@@ -19,7 +15,12 @@ enum {
 	FALL
 }
 
+var velocity = Vector2()
+var friction = 200
+var acceleration = 350
 var state = IDLE
+
+signal player_location
 
 func _physics_process(delta):
 	if Input.is_action_pressed("move_left"):
@@ -31,11 +32,14 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y -= jump_impulse
 		
-	velocity.x = max(-max_speed, min(max_speed, velocity.x))
-	print(str("velocity.y: ", velocity.y))
-	
+	adjust_velocity()
 	velocity = move_and_slide(velocity, Vector2.UP)
-	animate(velocity)
+	animate_player()
+	emit_signal("player_location", global_position.x)
+	
+	
+func adjust_velocity():
+	velocity.x = max(-max_speed, min(max_speed, velocity.x))
 	if is_on_floor():
 		velocity = velocity.move_toward(Vector2.ZERO, friction)
 	
@@ -46,13 +50,10 @@ func _physics_process(delta):
 		velocity.y += gravity
 		velocity.y = min(velocity.y, max_speed)
 	
-	
-	
-	
-func animate(vector):
-	if vector.x < 0.01 and not Input.is_action_pressed("move_right"):
+func animate_player():
+	if velocity.x < 0.01 and not Input.is_action_pressed("move_right"):
 		animated_sprite.flip_h = true
-	elif vector.x > 0.01 and not Input.is_action_pressed("move_left"):
+	elif velocity.x > 0.01 and not Input.is_action_pressed("move_left"):
 		animated_sprite.flip_h = false
 		
 	match state:
@@ -67,16 +68,16 @@ func animate(vector):
 		JUMP:
 			animated_sprite.play("jump")
 
-	if vector.x == 0 and vector.y == 0 and not Input.is_action_pressed("move_right") and not Input.is_action_pressed("move_left"):
+	if velocity.x == 0 and velocity.y == 0 and not Input.is_action_pressed("move_right") and not Input.is_action_pressed("move_left"):
 		state = IDLE
-	elif vector.y != 0:
-		if vector.y > 0:
+	elif velocity.y != 0:
+		if velocity.y > 0:
 			if Input.is_action_pressed("jump"):
 				state = GLIDE
 			else:
 				state = FALL
 		else:
 			state = JUMP
-	elif vector.x != 0:
+	elif velocity.x != 0:
 		state = RUN
 	
