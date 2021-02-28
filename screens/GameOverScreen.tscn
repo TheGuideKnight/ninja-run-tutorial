@@ -1,0 +1,71 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://theme/game_over_theme.tres" type="Theme" id=1]
+[ext_resource path="res://screens/GameOverScreen.gd" type="Script" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform sampler2D diffuse;
+
+void fragment() {
+    vec4 alpha = texture(diffuse, UV);
+
+	alpha.r = 0.1;
+	alpha.g = 0.1;
+	alpha.b = 0.1;
+	alpha.a = 0.5;
+
+    COLOR = alpha;
+}
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[sub_resource type="GradientTexture" id=3]
+
+[node name="GameOverScreen" type="Node2D"]
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_vertical_guides_": [ -176.0 ]
+}
+
+[node name="Sprite" type="Sprite" parent="."]
+material = SubResource( 2 )
+position = Vector2( 0, -1.52588e-05 )
+scale = Vector2( 0.347656, 864 )
+texture = SubResource( 3 )
+centered = false
+
+[node name="Control" type="Control" parent="."]
+margin_right = 1280.0
+margin_bottom = 864.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Control"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -340.0
+margin_top = -290.0
+margin_right = 340.0
+margin_bottom = 290.0
+theme = ExtResource( 1 )
+bbcode_enabled = true
+bbcode_text = "[center]Game over, you have
+100
+points[/center]"
+text = "Game over, you have
+100
+points"
+scroll_active = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Timer" type="Timer" parent="."]
+[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

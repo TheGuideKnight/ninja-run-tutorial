@@ -1,12 +1,15 @@
 extends KinematicBody2D
 
+const kunai_class = preload("res://player/Kunai.tscn")
+
 onready var animated_sprite = $AnimatedSprite
 onready var reset_timer = $ResetLevelTimer
+onready var points_text = $Control/RichTextLabel
 
 export var max_glide_speed = 150
 export var max_speed = 600
 export var jump_impulse = 900
-export var gravity = 40
+export var gravity = 4
 
 enum {
 	IDLE,
@@ -21,6 +24,8 @@ var velocity = Vector2()
 var friction = 200
 var acceleration = 350
 var state = IDLE
+var max_position_x = 0
+var total_kills = 0
 
 signal player_location
 
@@ -40,18 +45,50 @@ func _physics_process(delta):
 	adjust_velocity()
 	velocity = move_and_slide(velocity, Vector2.UP)
 
-	var c = get_slide_count()
-	for i in range(c):
-		var collision = get_slide_collision(i)
-		var collider = collision.collider
-		if collider.get_meta("type") == "enemy":
-			state = DEAD
-			reset_timer.start(1)
-	
+	if Input.is_action_just_pressed("fire"):
+		fire_kunai(velocity.x)
+		
+	check_if_touched_enemy()
+		
 	animate_player()
 	emit_signal("player_location", global_position.x, global_position.y)
 	
+	update_points()
 	
+	
+func update_points():
+	if position.x > max_position_x:
+		max_position_x = position.x
+
+	points_text.set_text("POINTS: " + str(floor(get_max_position() / 100) + 10 * get_kills()))
+
+
+func check_if_touched_enemy():
+	var slide_count = get_slide_count()
+	for i in range(slide_count):
+		var collision = get_slide_collision(i)
+		var collider = collision.collider
+		if collider.get_meta("type") == "enemy":
+			if collider.is_dead():
+				return
+			state = DEAD
+			
+			reset_timer.start(1)
+
+func fire_kunai(x):
+	var direction = 1
+	if animated_sprite.flip_h:
+		direction = -1
+
+	var kunai = kunai_class.instance()
+	kunai.position.y = position.y + 2
+	kunai.position.x = position.x + 50 * direction
+	kunai.init(direction)
+	
+	kunai.connect("killed_robot", self, "_on_robot_killed")
+	
+	get_tree().get_root().add_child(kunai)
+		
 func adjust_velocity():
 	velocity.x = max(-max_speed, min(max_speed, velocity.x))
 	if is_on_floor():
@@ -103,6 +140,11 @@ func animate_player():
 func _on_ResetLevelTimer_timeout():
 	get_tree().change_scene("res://world/World.tscn")
 
+func get_max_position():
+	return max_position_x
 
-func _on_Player_player_location():
-	pass # Replace with function body.
+func _on_robot_killed():
+	total_kills += 1
+
+func get_kills():
+	return total_kills

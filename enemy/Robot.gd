@@ -1,12 +1,15 @@
 extends KinematicBody2D
 
 onready var animated_sprite = $AnimatedSprite
-onready var timer = $Timer
+onready var action_timer = $ActionTimer
+onready var death_timer = $DeathTimer
+onready var collision_shape = $CollisionShape2D
 
 enum {
 	IDLE,
 	RUN,
-	FALL
+	FALL,
+	DEAD
 }
 
 const gravity = 100
@@ -20,7 +23,7 @@ var ready
 func _ready():
 	set_meta("type", "enemy")
 	ready = true
-	timer.start(1)
+	action_timer.start(1)
 
 func _physics_process(delta):
 	if not ready:
@@ -30,7 +33,7 @@ func _physics_process(delta):
 	animate_enemy()
 	
 func act():
-	if state == FALL:
+	if state == FALL or state == DEAD:
 		return
 	
 	var random = rand_range(0, 1)
@@ -48,6 +51,9 @@ func animate_enemy():
 		animated_sprite.flip_h = false
 		
 	match state:
+		DEAD:
+			animated_sprite.play("dead")
+			return
 		FALL:
 			animated_sprite.play("jump")
 		IDLE:
@@ -66,4 +72,16 @@ func animate_enemy():
 
 func _on_Timer_timeout():
 	act()
-	timer.start(rand_range(0.2, 3))
+	action_timer.start(rand_range(0.2, 3))
+
+func is_dead():
+	return state == DEAD
+
+func kill():
+#	collision_shape.apply_scale(Vector2(1, 0.3))
+	collision_shape.rotate(1.57)
+	state = DEAD
+	death_timer.start(20)
+	
+func _on_DeathTimer_timeout():
+	queue_free()

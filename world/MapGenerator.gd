@@ -10,9 +10,7 @@ var current_x = 0
 var current_y = 14
 
 var cross_id = -1
-var horizontal_id = -1
 var horizontal_left_id = -1
-var horizontal_right_id = -1
 var horizontal_both_id = -1
 var vertical_id = -1
 var vertical_top_id = -1
@@ -22,10 +20,6 @@ var curve_left_top_id = -1
 var curve_bottom_right_id = -1
 var curve_left_bottom_id = -1
 var curve_top_right_id = -1
-var t_bottom_id = -1
-var t_right_id = -1
-var t_top_id = -1
-var t_left_id = -1
 
 var previous_batch
 var current_batch
@@ -40,10 +34,7 @@ var current_batch_end_y
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	seed(1)
-	cross_id = tile_map.tile_set.find_tile_by_name("cross")
-	horizontal_id = tile_map.tile_set.find_tile_by_name("horizontal")
 	horizontal_left_id = tile_map.tile_set.find_tile_by_name("horizontal_left")
-	horizontal_right_id = tile_map.tile_set.find_tile_by_name("horizontal_right")
 	horizontal_both_id = tile_map.tile_set.find_tile_by_name("horizontal_both")
 	vertical_id = tile_map.tile_set.find_tile_by_name("vertical")
 	vertical_top_id = tile_map.tile_set.find_tile_by_name("vertical_top")
@@ -53,10 +44,6 @@ func _ready():
 	curve_bottom_right_id = tile_map.tile_set.find_tile_by_name("curve_bottom_right")
 	curve_left_bottom_id = tile_map.tile_set.find_tile_by_name("curve_left_bottom")
 	curve_top_right_id = tile_map.tile_set.find_tile_by_name("curve_top_right")
-	t_bottom_id = tile_map.tile_set.find_tile_by_name("t_bottom")
-	t_right_id = tile_map.tile_set.find_tile_by_name("t_right")
-	t_top_id = tile_map.tile_set.find_tile_by_name("t_top")
-	t_left_id = tile_map.tile_set.find_tile_by_name("t_left")
 	
 	current_batch_start_x = -2
 	batch_size = 50
