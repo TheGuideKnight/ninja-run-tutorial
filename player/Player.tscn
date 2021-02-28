@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=2]
+[gd_scene load_steps=37 format=2]
 
 [ext_resource path="res://assets/player/Idle__000.png" type="Texture" id=1]
 [ext_resource path="res://assets/player/Idle__006.png" type="Texture" id=2]
@@ -33,17 +33,7 @@
 [ext_resource path="res://player/Player.gd" type="Script" id=31]
 [ext_resource path="res://assets/player/Glide_003.png" type="Texture" id=32]
 [ext_resource path="res://assets/player/Jump__004.png" type="Texture" id=33]
-[ext_resource path="res://assets/player/Dead__009.png" type="Texture" id=34]
-[ext_resource path="res://assets/player/Dead__001.png" type="Texture" id=35]
-[ext_resource path="res://assets/player/Dead__004.png" type="Texture" id=36]
-[ext_resource path="res://assets/player/Dead__003.png" type="Texture" id=37]
-[ext_resource path="res://assets/player/Dead__008.png" type="Texture" id=38]
-[ext_resource path="res://assets/player/Dead__007.png" type="Texture" id=39]
-[ext_resource path="res://assets/player/Dead__006.png" type="Texture" id=40]
-[ext_resource path="res://assets/player/Dead__005.png" type="Texture" id=41]
-[ext_resource path="res://assets/player/Dead__000.png" type="Texture" id=42]
-[ext_resource path="res://assets/player/Dead__002.png" type="Texture" id=43]
-[ext_resource path="res://theme/default_theme.tres" type="Theme" id=44]
+[ext_resource path="res://theme/default_theme.tres" type="Theme" id=34]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -51,11 +41,6 @@ animations = [ {
 "loop": true,
 "name": "idle",
 "speed": 12.0
-}, {
-"frames": [ ExtResource( 42 ), ExtResource( 35 ), ExtResource( 43 ), ExtResource( 37 ), ExtResource( 36 ), ExtResource( 41 ), ExtResource( 40 ), ExtResource( 39 ), ExtResource( 38 ), ExtResource( 34 ) ],
-"loop": false,
-"name": "dead",
-"speed": 10.0
 }, {
 "frames": [ ExtResource( 8 ) ],
 "loop": true,
@@ -88,7 +73,8 @@ script = ExtResource( 31 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 1 )
-animation = "idle"
+animation = "fall"
+playing = true
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( 0, 31.7839 )
@@ -96,8 +82,6 @@ shape = SubResource( 2 )
 
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
-
-[node name="ResetLevelTimer" type="Timer" parent="."]
 
 [node name="Control" type="Control" parent="."]
 margin_left = -3200.0
@@ -109,15 +93,6 @@ __meta__ = {
 }
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Control"]
-margin_left = 20.0
-margin_top = 20.0
-margin_right = 2400.0
-margin_bottom = 1040.0
-size_flags_horizontal = 3
-size_flags_vertical = 3
-theme = ExtResource( 44 )
-text = "Points"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-[connection signal="timeout" from="ResetLevelTimer" to="." method="_on_ResetLevelTimer_timeout"]
+margin_right = 1920.0
+margin_bottom = 560.0
+theme = ExtResource( 34 )

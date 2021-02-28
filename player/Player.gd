@@ -9,7 +9,7 @@ onready var points_text = $Control/RichTextLabel
 export var max_glide_speed = 150
 export var max_speed = 600
 export var jump_impulse = 900
-export var gravity = 4
+export var gravity = 40
 
 enum {
 	IDLE,
