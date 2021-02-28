@@ -44,6 +44,21 @@ __meta__ = {
 position = Vector2( 0.0992126, 0 )
 shape = SubResource( 2 )
 
+[node name="horizontal_left2" type="Sprite" parent="."]
+position = Vector2( 64, 0 )
+texture = ExtResource( 1 )
+region_enabled = true
+region_rect = Rect2( 64, 224, 32, 32 )
+__meta__ = {
+"_edit_group_": true
+}
+
+[node name="StaticBody2D" type="StaticBody2D" parent="horizontal_left2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="horizontal_left2/StaticBody2D"]
+position = Vector2( 0.0992126, 0 )
+shape = SubResource( 2 )
+
 [node name="horizontal" type="Sprite" parent="."]
 position = Vector2( 128, 0 )
 texture = ExtResource( 1 )

@@ -2,6 +2,7 @@ extends KinematicBody2D
 
 onready var animated_sprite = $AnimatedSprite
 
+export var max_glide_speed = 150
 export var max_speed = 600
 export var jump_impulse = 900
 export var gravity = 40
@@ -39,10 +40,12 @@ func _physics_process(delta):
 		velocity = velocity.move_toward(Vector2.ZERO, friction)
 	
 	if state == GLIDE:
-		velocity.y += gravity / 10
+		velocity.y += gravity / 3
+		velocity.y = min(velocity.y, max_glide_speed)
 	else:
 		velocity.y += gravity
-	velocity.y = min(velocity.y, max_speed)
+		velocity.y = min(velocity.y, max_speed)
+	
 	
 	
 	
