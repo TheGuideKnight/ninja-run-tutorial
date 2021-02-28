@@ -30,6 +30,7 @@ var t_left_id = -1
 var previous_batch
 var current_batch
 var next_batch
+var stop_batch # used to block the player from returning.
 
 var batch_size = 4
 var current_batch_start_x
@@ -58,12 +59,12 @@ func _ready():
 	t_left_id = tile_map.tile_set.find_tile_by_name("t_left")
 	
 	current_batch_start_x = -2
-	batch_size = 5
+	batch_size = 50
 	
 	previous_batch = generate_batch(current_batch_start_x - batch_size, current_batch_start_x, 10)
 	current_batch = generate_batch(current_batch_start_x, current_batch_start_x + batch_size, get_y(previous_batch))
 	next_batch = generate_batch(current_batch_start_x + batch_size, current_batch_start_x + 2 * batch_size, get_y(current_batch))
-	
+	stop_batch = generate_stop_batch(current_batch_start_x - batch_size - 1, 10)
 	update_start_end_y(current_batch)
 
 
@@ -79,15 +80,6 @@ func clear_batch(batch):
 		var value = batch[i]
 		tile_map.set_cell(value["x"], value["y"], -1)
 
-func move_up():
-	current_y -= 1
-	
-func move_right():
-	current_x += 1
-
-func move_down():
-	current_y += 1
-
 func generate_batch(start_x, end_x, start_y):
 	var c_y = start_y
 	var batch = []
@@ -101,36 +93,61 @@ func generate_batch(start_x, end_x, start_y):
 		elif random < 0.45:
 			c_y = generate_descending_path(c_x, c_y, batch)
 		else:
-			tile_map.set_cell(c_x, c_y, horizontal_both_id)
-			batch.append({"x": c_x, "y": c_y})
+			batch.append(add_pipe(c_x, c_y, horizontal_both_id))
 				
 	return batch
+	
+func add_pipe(x, y, pipe_id):
+	tile_map.set_cell(x, y, pipe_id)
+	return {"x": x, "y": y}
 
+func generate_stop_batch(c_x, c_y):
+	var horizontal_size = 5
+	var vertical_size = 10
+	var batch = []
+	batch.append(add_pipe(c_x, c_y, curve_top_right_id))
+	c_y -= 1
+
+	batch.append(add_pipe(c_x, c_y, vertical_bottom_id))
+	c_y -= 1
+	
+	for i in range(vertical_size):
+		batch.append(add_pipe(c_x, c_y, vertical_id))
+		c_y -= 1
+	
+	batch.append(add_pipe(c_x, c_y, vertical_top_id))
+	c_y -= 1
+	
+	batch.append(add_pipe(c_x, c_y, curve_bottom_right_id))
+	c_x += 1
+
+	batch.append(add_pipe(c_x, c_y, horizontal_left_id))
+	c_x += 1
+
+	for i in range(horizontal_size):
+		batch.append(add_pipe(c_x, c_y, horizontal_both_id))
+		c_x += 1
+	return batch
+	
 
 func generate_ascending_path(c_x, c_y, batch):
-	tile_map.set_cell(c_x, c_y, curve_left_top_id)
-	batch.append({"x": c_x, "y": c_y})
+	batch.append(add_pipe(c_x, c_y, curve_left_top_id))
 	c_y -= 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		tile_map.set_cell(c_x, c_y, vertical_both_id)
-		batch.append({"x": c_x, "y": c_y})
+		batch.append(add_pipe(c_x, c_y, vertical_both_id))
 		c_y -= 1
-	tile_map.set_cell(c_x, c_y, curve_bottom_right_id)
-	batch.append({"x": c_x, "y": c_y})
+	batch.append(add_pipe(c_x, c_y, curve_bottom_right_id))
 	return c_y
 	
 func generate_descending_path(c_x, c_y, batch):
-	tile_map.set_cell(c_x, c_y, curve_left_bottom_id)
-	batch.append({"x": c_x, "y": c_y})
+	batch.append(add_pipe(c_x, c_y, curve_left_bottom_id))
 	c_y += 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		tile_map.set_cell(c_x, c_y, vertical_both_id)
-		batch.append({"x": c_x, "y": c_y})
+		batch.append(add_pipe(c_x, c_y, vertical_both_id))
 		c_y += 1
-	tile_map.set_cell(c_x, c_y, curve_top_right_id)
-	batch.append({"x": c_x, "y": c_y})
+	batch.append(add_pipe(c_x, c_y, curve_top_right_id))
 	return c_y
 	
 #func generate_ascending_path():
@@ -159,16 +176,11 @@ func _on_Timer_timeout():
 
 func _on_Player_player_location(position_x):
 	var current_cell_position = floor(position_x / cell_width)
-#	if current_cell_position < current_batch_start_x:
-#		current_batch_start_x -= batch_size
-#		clear_batch(next_batch)
-#		next_batch = current_batch
-#		current_batch = previous_batch
-#		previous_batch = generate_batch(current_batch_start_x - batch_size, current_batch_start_x, get_y(current_batch))
-#		print("generated previous batch")
 	if current_cell_position > current_batch_start_x + batch_size:
 		current_batch_start_x += batch_size
 		clear_batch(previous_batch)
+		clear_batch(stop_batch)
+		stop_batch = generate_stop_batch(current_batch_start_x - batch_size - 1, current_batch[0]["y"])
 		previous_batch = current_batch
 		current_batch = next_batch		
 		next_batch = generate_batch(current_batch_start_x + batch_size, current_batch_start_x + 2 * batch_size, get_y(current_batch))
