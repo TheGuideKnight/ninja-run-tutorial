@@ -14,7 +14,7 @@ func _ready():
 func init(direction):
 	self.direction = direction
 	apply_impulse(Vector2(position.x - 20 * direction, 0), Vector2(speed * direction, 0))
-#	set_applied_force(Vector2(speed * direction, 0))
+
 	
 func _on_DestroyTimer_timeout():
 	queue_free()

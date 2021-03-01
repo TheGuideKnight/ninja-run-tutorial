@@ -16,9 +16,9 @@ const gravity = 100
 
 var velocity = Vector2()
 var speed = 200
-
 var state = IDLE
 var ready
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	set_meta("type", "enemy")
@@ -78,10 +78,24 @@ func is_dead():
 	return state == DEAD
 
 func kill():
-#	collision_shape.apply_scale(Vector2(1, 0.3))
 	collision_shape.rotate(1.57)
 	state = DEAD
 	death_timer.start(20)
 	
 func _on_DeathTimer_timeout():
 	queue_free()
+
+# Sets the robot size, accepted values are from 10 to 100
+func set_size(value):
+	assert(value >= 10 && value <= 100)
+	# 10 == 0.3, 100 = 3
+	var size = value / 33.3333
+	print(str("Resizing robot: ", value))
+
+	collision_shape.scale.x = size
+	collision_shape.scale.y = size
+	
+	size = size * 0.15
+	animated_sprite.scale.x = size
+	animated_sprite.scale.y = size
+

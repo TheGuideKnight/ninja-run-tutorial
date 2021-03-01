@@ -31,6 +31,7 @@ signal player_location
 
 func _physics_process(delta):
 	if state == DEAD:
+		animate_player()
 		return
 
 	if Input.is_action_pressed("move_left"):
@@ -73,7 +74,7 @@ func check_if_touched_enemy():
 				return
 			state = DEAD
 			
-			reset_timer.start(1)
+			reset_timer.start(1)      
 
 func fire_kunai(x):
 	var direction = 1
@@ -109,7 +110,7 @@ func animate_player():
 		
 	match state:
 		DEAD:
-			animated_sprite.play("dead")
+			animated_sprite.play("death")
 			return
 		FALL:
 			animated_sprite.play("fall")
@@ -134,8 +135,6 @@ func animate_player():
 			state = JUMP
 	elif velocity.x != 0:
 		state = RUN
-	
-
 
 func _on_ResetLevelTimer_timeout():
 	get_tree().change_scene("res://world/World.tscn")

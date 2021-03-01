@@ -33,6 +33,7 @@ var current_batch_end_y
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+
 	seed(1)
 	horizontal_left_id = tile_map.tile_set.find_tile_by_name("horizontal_left")
 	horizontal_both_id = tile_map.tile_set.find_tile_by_name("horizontal_both")
@@ -136,27 +137,7 @@ func generate_descending_path(c_x, c_y, batch):
 		c_y += 1
 	batch.append(add_pipe(c_x, c_y, curve_top_right_id))
 	return c_y
-	
-#func generate_ascending_path():
-#	tile_map.set_cell(current_x, current_y, curve_left_top_id)
-#	move_up()
-#	var random = rand_range(1, 3)
-#	for j in range(1, random):
-#		tile_map.set_cell(current_x, current_y, vertical_both_id)
-#		move_up()
-#	tile_map.set_cell(current_x, current_y, curve_bottom_right_id)
-#	move_right()
 
-#func generate_descending_path():
-#	tile_map.set_cell(current_x, current_y, curve_left_bottom_id)
-#	move_down()
-#	var random = rand_range(1, 7)
-#	for j in range(1, random):
-#		tile_map.set_cell(current_x, current_y, vertical_both_id)
-#		move_down()
-#	tile_map.set_cell(current_x, current_y, curve_top_right_id)
-#	move_right()
-			
 func _on_Timer_timeout():
 	tile_map.set_cell(2,2,-1)
 
@@ -171,5 +152,4 @@ func _on_Player_player_location(position_x, position_y):
 		previous_batch = current_batch
 		current_batch = next_batch		
 		next_batch = generate_batch(current_batch_start_x + batch_size, current_batch_start_x + 2 * batch_size, get_y(current_batch))
-		print("generated next batch")
-#	print(str('current_cell_position: ', current_cell_position) , "current_batch_start_x: ", current_batch_start_x)
+

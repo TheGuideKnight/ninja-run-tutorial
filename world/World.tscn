@@ -495,5 +495,5 @@ texture = ExtResource( 3 )
 centered = false
 region_enabled = true
 region_rect = Rect2( 0, 0, 1920, 1280 )
-[connection signal="player_location" from="Player" to="EnemyGenerator" method="_on_Player_player_location"]
 [connection signal="player_location" from="Player" to="MapGenerator" method="_on_Player_player_location"]
+[connection signal="player_location" from="Player" to="EnemyGenerator" method="_on_Player_player_location"]
