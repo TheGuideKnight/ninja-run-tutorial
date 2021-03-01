@@ -103,11 +103,13 @@ func adjust_velocity():
 		velocity.y = min(velocity.y, max_speed)
 	
 func animate_player():
+	# Make sure we face the correct direction.
 	if velocity.x < -0.01 and not Input.is_action_pressed("move_right"):
 		animated_sprite.flip_h = true
 	elif velocity.x > 0.01 and not Input.is_action_pressed("move_left"):
 		animated_sprite.flip_h = false
-		
+
+	# Animate the player
 	match state:
 		DEAD:
 			animated_sprite.play("death")
@@ -123,6 +125,7 @@ func animate_player():
 		JUMP:
 			animated_sprite.play("jump")
 
+	# Change the state.
 	if velocity.x == 0 and velocity.y == 0 and not Input.is_action_pressed("move_right") and not Input.is_action_pressed("move_left"):
 		state = IDLE
 	elif velocity.y != 0:
