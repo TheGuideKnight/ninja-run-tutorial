@@ -9,18 +9,6 @@ const cell_height = 32
 var current_x = 0
 var current_y = 14
 
-var cross_id = -1
-var horizontal_left_id = -1
-var horizontal_both_id = -1
-var vertical_id = -1
-var vertical_top_id = -1
-var vertical_bottom_id = -1
-var vertical_both_id = -1
-var curve_left_top_id = -1
-var curve_bottom_right_id = -1
-var curve_left_bottom_id = -1
-var curve_top_right_id = -1
-
 var previous_batch
 var current_batch
 var next_batch
@@ -35,17 +23,7 @@ var current_batch_end_y
 func _ready():
 
 	seed(1)
-	horizontal_left_id = tile_map.tile_set.find_tile_by_name("horizontal_left")
-	horizontal_both_id = tile_map.tile_set.find_tile_by_name("horizontal_both")
-	vertical_id = tile_map.tile_set.find_tile_by_name("vertical")
-	vertical_top_id = tile_map.tile_set.find_tile_by_name("vertical_top")
-	vertical_bottom_id = tile_map.tile_set.find_tile_by_name("vertical_bottom")
-	vertical_both_id = tile_map.tile_set.find_tile_by_name("vertical_both")
-	curve_left_top_id = tile_map.tile_set.find_tile_by_name("curve_left_top")
-	curve_bottom_right_id = tile_map.tile_set.find_tile_by_name("curve_bottom_right")
-	curve_left_bottom_id = tile_map.tile_set.find_tile_by_name("curve_left_bottom")
-	curve_top_right_id = tile_map.tile_set.find_tile_by_name("curve_top_right")
-	
+
 	current_batch_start_x = -2
 	batch_size = 50
 	
@@ -55,6 +33,8 @@ func _ready():
 	stop_batch = generate_stop_batch(current_batch_start_x - batch_size - 1, 10)
 	update_start_end_y(current_batch)
 
+func get_tile(name) -> int:
+	return tile_map.tile_set.find_tile_by_name(name)
 
 func get_y(batch):
 	return batch[batch.size() - 1]["y"]
@@ -81,7 +61,7 @@ func generate_batch(start_x, end_x, start_y):
 		elif random < 0.45:
 			c_y = generate_descending_path(c_x, c_y, batch)
 		else:
-			batch.append(add_pipe(c_x, c_y, horizontal_both_id))
+			batch.append(add_pipe(c_x, c_y, get_tile("horizontal_both")))
 				
 	return batch
 	
@@ -89,59 +69,58 @@ func add_pipe(x, y, pipe_id):
 	tile_map.set_cell(x, y, pipe_id)
 	return {"x": x, "y": y}
 
+# This generates the pipe on the left of the map that blocks the player movement.
 func generate_stop_batch(c_x, c_y):
 	var horizontal_size = 5
 	var vertical_size = 10
 	var batch = []
-	batch.append(add_pipe(c_x, c_y, curve_top_right_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_top_right")))
 	c_y -= 1
 
-	batch.append(add_pipe(c_x, c_y, vertical_bottom_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("vertical_bottom")))
 	c_y -= 1
 	
 	for i in range(vertical_size):
-		batch.append(add_pipe(c_x, c_y, vertical_id))
+		batch.append(add_pipe(c_x, c_y, get_tile("vertical")))
 		c_y -= 1
 	
-	batch.append(add_pipe(c_x, c_y, vertical_top_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("vertical_top")))
 	c_y -= 1
 	
-	batch.append(add_pipe(c_x, c_y, curve_bottom_right_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_bottom_right")))
 	c_x += 1
 
-	batch.append(add_pipe(c_x, c_y, horizontal_left_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("horizontal_left")))
 	c_x += 1
 
 	for i in range(horizontal_size):
-		batch.append(add_pipe(c_x, c_y, horizontal_both_id))
+		batch.append(add_pipe(c_x, c_y, get_tile("horizontal_both")))
 		c_x += 1
 	return batch
 	
-
+# Generates an ascending path of 1 tile in the x direction.
 func generate_ascending_path(c_x, c_y, batch):
-	batch.append(add_pipe(c_x, c_y, curve_left_top_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_left_top")))
 	c_y -= 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		batch.append(add_pipe(c_x, c_y, vertical_both_id))
+		batch.append(add_pipe(c_x, c_y, get_tile("vertical_both")))
 		c_y -= 1
-	batch.append(add_pipe(c_x, c_y, curve_bottom_right_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_bottom_right")))
 	return c_y
-	
+
+# Generates a descending path of 1 tile in the x direction.
 func generate_descending_path(c_x, c_y, batch):
-	batch.append(add_pipe(c_x, c_y, curve_left_bottom_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_left_bottom")))
 	c_y += 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		batch.append(add_pipe(c_x, c_y, vertical_both_id))
+		batch.append(add_pipe(c_x, c_y, get_tile("vertical_both")))
 		c_y += 1
-	batch.append(add_pipe(c_x, c_y, curve_top_right_id))
+	batch.append(add_pipe(c_x, c_y, get_tile("curve_top_right")))
 	return c_y
 
-func _on_Timer_timeout():
-	tile_map.set_cell(2,2,-1)
-
-
+# Manage the tile map objects
 func _on_Player_player_location(position_x, position_y):
 	var current_cell_position = floor(position_x / cell_width)
 	if current_cell_position > current_batch_start_x + batch_size:
