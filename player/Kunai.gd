@@ -10,6 +10,8 @@ signal killed_robot
 func _ready():
 	gravity_scale = 0.1
 	friction = 0
+	if direction < 0:
+		kunai_sprite.flip_h = true
 	
 func init(direction):
 	self.direction = direction
