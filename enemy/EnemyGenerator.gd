@@ -40,5 +40,5 @@ func _on_Player_player_location(player_x, player_y):
 
 func do_REST_resize_call():
 	# Deal with the robot resizing.
-	request.request("http://www.randomnumberapi.com/api/v1.0/random?min=10&max=100&count=1")
+	request.request("http://www.randomnumberapi.com/api/v1.0/random?min=5&max=20&count=1")
 

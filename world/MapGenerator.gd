@@ -2,6 +2,8 @@ extends Node2D
 
 onready var tile_map = $TileMap
 
+export var seed_value = 1
+
 const vertical_cells = 14
 const cell_width = 32
 const cell_height = 32
@@ -21,8 +23,7 @@ var current_batch_end_y
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-
-	seed(1)
+	seed(seed_value)
 
 	current_batch_start_x = -2
 	batch_size = 50

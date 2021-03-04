@@ -6,6 +6,7 @@ onready var animated_sprite = $AnimatedSprite
 onready var reset_timer = $ResetLevelTimer
 onready var points_text = $Control/RichTextLabel
 
+export var immortal = false
 export var max_glide_speed = 150
 export var max_speed = 600
 export var jump_impulse = 900
@@ -70,7 +71,7 @@ func check_if_touched_enemy():
 		var collision = get_slide_collision(i)
 		var collider = collision.collider
 		if collider.get_meta("type") == "enemy":
-			if collider.is_dead():
+			if collider.is_dead() or immortal:
 				return
 			state = DEAD
 			

@@ -7,6 +7,7 @@
 extents = Vector2( 9.52695, 1.9056 )
 
 [node name="Kunai" type="RigidBody2D"]
+collision_layer = 2
 contacts_reported = 1
 contact_monitor = true
 script = ExtResource( 2 )

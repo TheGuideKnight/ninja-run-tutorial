@@ -28,6 +28,9 @@ func _ready():
 func _physics_process(delta):
 	if not ready:
 		return
+		
+	if state == DEAD:
+		velocity.x = 0
 	velocity.y += gravity
 	velocity = move_and_slide(velocity, Vector2.UP)
 	animate_enemy()
@@ -45,11 +48,6 @@ func act():
 		velocity.x = speed
 
 func animate_enemy():
-	if velocity.x < -0.01:
-		animated_sprite.flip_h = true
-	elif velocity.x > 0.01:
-		animated_sprite.flip_h = false
-		
 	match state:
 		DEAD:
 			animated_sprite.play("dead")
@@ -61,6 +59,11 @@ func animate_enemy():
 		RUN:
 			animated_sprite.play("run")
 
+	if velocity.x < -0.01:
+		animated_sprite.flip_h = true
+	elif velocity.x > 0.01:
+		animated_sprite.flip_h = false
+		
 	if velocity.x == 0 and velocity.y == 0:
 		state = IDLE
 	elif velocity.y != 0:
@@ -78,24 +81,24 @@ func is_dead():
 	return state == DEAD
 
 func kill():
-	collision_shape.rotate(1.57)
-	state = DEAD
-	death_timer.start(20)
+	if state != DEAD:
+		# Make the robot cannot kill or hinder the player
+		set_collision_layer(2)
+		state = DEAD
+		death_timer.start(10)
 	
 func _on_DeathTimer_timeout():
 	queue_free()
 
 # Sets the robot size, accepted values are from 10 to 100
 func set_size(value):
-	assert(value >= 10 && value <= 100)
-	# 10 == 0.3, 100 = 3
-	var size = value / 33.3333
-	print(str("Resizing robot: ", value))
-
-	collision_shape.scale.x = size
-	collision_shape.scale.y = size
+	assert(value >= 5 && value <= 20)
+	var current_size_collision_shape = collision_shape.scale.x
+	var current_size_sprite = animated_sprite.scale.x
 	
-	size = size * 0.15
-	animated_sprite.scale.x = size
-	animated_sprite.scale.y = size
+	collision_shape.scale.x = current_size_collision_shape * (value / 10.0)
+	collision_shape.scale.y = current_size_collision_shape * (value / 10.0)
+	
+	animated_sprite.scale.x = current_size_sprite * (value / 10.0)
+	animated_sprite.scale.y = current_size_sprite * (value / 10.0)
 
