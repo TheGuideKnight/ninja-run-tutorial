@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=2]
+[gd_scene load_steps=53 format=2]
 
 [ext_resource path="res://assets/player/Idle__000.png" type="Texture" id=1]
 [ext_resource path="res://assets/player/Idle__006.png" type="Texture" id=2]
@@ -44,6 +44,12 @@
 [ext_resource path="res://assets/player/Dead__000.png" type="Texture" id=42]
 [ext_resource path="res://assets/player/Dead__001.png" type="Texture" id=43]
 [ext_resource path="res://assets/player/Dead__002.png" type="Texture" id=44]
+[ext_resource path="res://assets/player/Throw__008.png" type="Texture" id=45]
+[ext_resource path="res://assets/player/Throw__007.png" type="Texture" id=46]
+[ext_resource path="res://assets/player/Throw__003.png" type="Texture" id=48]
+[ext_resource path="res://assets/player/Throw__000.png" type="Texture" id=49]
+[ext_resource path="res://assets/player/Throw__009.png" type="Texture" id=52]
+[ext_resource path="res://assets/player/Throw__001.png" type="Texture" id=54]
 
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
@@ -60,6 +66,11 @@ animations = [ {
 "frames": [ ExtResource( 23 ), ExtResource( 7 ), ExtResource( 24 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 13 ), ExtResource( 12 ), ExtResource( 16 ), ExtResource( 14 ), ExtResource( 15 ) ],
 "loop": true,
 "name": "run",
+"speed": 15.0
+}, {
+"frames": [ ExtResource( 48 ), ExtResource( 46 ), ExtResource( 45 ), ExtResource( 52 ), ExtResource( 49 ), ExtResource( 54 ) ],
+"loop": false,
+"name": "throw_kunai",
 "speed": 15.0
 }, {
 "frames": [ ExtResource( 42 ), ExtResource( 43 ), ExtResource( 44 ), ExtResource( 41 ), ExtResource( 36 ), ExtResource( 35 ), ExtResource( 38 ), ExtResource( 40 ), ExtResource( 39 ), ExtResource( 37 ) ],
@@ -89,8 +100,8 @@ script = ExtResource( 31 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
 frames = SubResource( 1 )
-animation = "idle"
-frame = 7
+animation = "throw_kunai"
+frame = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2( 0, 31.7839 )

@@ -18,7 +18,8 @@ enum {
 	JUMP,
 	GLIDE,
 	FALL,
-	DEAD
+	DEAD,
+	THROW_KUNAI
 }
 
 var velocity = Vector2()
@@ -35,10 +36,10 @@ func _physics_process(delta):
 		animate_player()
 		return
 
-	if Input.is_action_pressed("move_left"):
+	if Input.is_action_pressed("move_left") and not state == THROW_KUNAI:
 		velocity.x -= acceleration
 	
-	if Input.is_action_pressed("move_right"):
+	if Input.is_action_pressed("move_right") and not state == THROW_KUNAI:
 		velocity.x += acceleration
 		
 	if Input.is_action_just_pressed("jump") and is_on_floor():
@@ -78,13 +79,14 @@ func check_if_touched_enemy():
 			reset_timer.start(1)      
 
 func fire_kunai(x):
+	state = THROW_KUNAI
 	var direction = 1
 	if animated_sprite.flip_h:
 		direction = -1
 
 	var kunai = kunai_class.instance()
 	kunai.position.y = position.y + 2
-	kunai.position.x = position.x + 50 * direction
+	kunai.position.x = position.x + 5 * direction
 	kunai.init(direction)
 	
 	kunai.connect("killed_robot", self, "_on_robot_killed")
@@ -104,10 +106,9 @@ func adjust_velocity():
 		velocity.y = min(velocity.y, max_speed)
 	
 func animate_player():
-	# Make sure we face the correct direction.
-	if velocity.x < -0.01 and not Input.is_action_pressed("move_right"):
+	if Input.is_action_pressed("move_left"):
 		animated_sprite.flip_h = true
-	elif velocity.x > 0.01 and not Input.is_action_pressed("move_left"):
+	elif Input.is_action_pressed("move_right"):
 		animated_sprite.flip_h = false
 
 	# Animate the player
@@ -117,28 +118,75 @@ func animate_player():
 			return
 		FALL:
 			animated_sprite.play("fall")
+			if check_glide() or check_idle() or check_throw() or check_run():
+				return
 		GLIDE:
 			animated_sprite.play("glide")
+			if check_idle() or check_fall() or check_throw() or check_run():
+				return
 		IDLE:
 			animated_sprite.play("idle")
+			if check_run() or check_jump() or check_throw():
+				return
 		RUN:
 			animated_sprite.play("run")
+			if check_idle() or check_jump() or check_throw():
+				return
 		JUMP:
 			animated_sprite.play("jump")
-
-	# Change the state.
-	if velocity.x == 0 and velocity.y == 0 and not Input.is_action_pressed("move_right") and not Input.is_action_pressed("move_left"):
+			if check_idle() or check_fall() or check_glide() or check_throw() or check_run():
+				return
+		THROW_KUNAI:
+			animated_sprite.play("throw_kunai")
+			
+			var current_frame = animated_sprite.get_frame()
+			var total_frames = animated_sprite.get_sprite_frames().get_frame_count("throw_kunai")
+			
+			if current_frame >= total_frames - 1 and (check_fall() or check_glide() or check_idle() or check_run()):
+				return
+			
+			
+func check_idle():
+	if is_on_floor() and (not Input.is_action_pressed("move_right") and not Input.is_action_pressed("move_left")):
+		print("-> Idle")
 		state = IDLE
-	elif velocity.y != 0:
-		if velocity.y > 0:
-			if Input.is_action_pressed("jump"):
-				state = GLIDE
-			else:
-				state = FALL
-		else:
-			state = JUMP
-	elif velocity.x != 0:
+		return true
+	return false
+	
+func check_glide():
+	if velocity.y > 0 and Input.is_action_pressed("jump"):
+		print("-> Glide")
+		state = GLIDE
+		return true
+	return false
+		
+func check_run():
+	if is_on_floor() and (Input.is_action_pressed("move_right") or Input.is_action_pressed("move_left")):
+		print(str("-> Run, ", is_on_floor()))
 		state = RUN
+		return true
+	return false
+
+func check_jump():
+	if velocity.y != 0 and Input.is_action_just_pressed("jump"):
+		print("-> Jump")
+		state = JUMP
+		return true
+	return false
+
+func check_fall():
+	if velocity.y > 0 and not Input.is_action_pressed("jump"):
+		print("-> Fall")
+		state = FALL
+		return true
+	return false
+
+func check_throw():
+	if Input.is_action_just_pressed("fire"):
+		print("-> Throw")
+		state = THROW_KUNAI
+		return true
+	return false
 
 func _on_ResetLevelTimer_timeout():
 	get_tree().change_scene("res://world/World.tscn")

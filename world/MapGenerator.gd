@@ -8,42 +8,37 @@ const vertical_cells = 14
 const cell_width = 32
 const cell_height = 32
 
-var current_x = 0
-var current_y = 14
-
 var previous_batch
 var current_batch
 var next_batch
 var stop_batch # used to block the player from returning.
 
-var batch_size = 4
-var current_batch_start_x
-var current_batch_start_y
-var current_batch_end_y
+var batch_size = 5
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	seed(seed_value)
 
-	current_batch_start_x = -2
-	batch_size = 50
-	
-	previous_batch = generate_batch(current_batch_start_x - batch_size, current_batch_start_x, 10)
-	current_batch = generate_batch(current_batch_start_x, current_batch_start_x + batch_size, get_y(previous_batch))
-	next_batch = generate_batch(current_batch_start_x + batch_size, current_batch_start_x + 2 * batch_size, get_y(current_batch))
-	stop_batch = generate_stop_batch(current_batch_start_x - batch_size - 1, 10)
-	update_start_end_y(current_batch)
+	var start_x = 0
+	var start_y = 14
 
-func get_tile(name) -> int:
-	return tile_map.tile_set.find_tile_by_name(name)
+	previous_batch = generate_batch(start_x - batch_size, start_x, start_y)
+	current_batch = generate_batch(get_end_x(previous_batch) + 1, get_end_x(previous_batch) + 1 + batch_size, get_end_y(previous_batch))
+	next_batch = generate_batch(get_end_x(current_batch) + 1, get_end_x(current_batch) + 1 + batch_size, get_end_y(current_batch))
+	stop_batch = generate_stop_batch(get_start_x(previous_batch) - 1, get_start_y(previous_batch))
 
-func get_y(batch):
+func get_end_y(batch):
 	return batch[batch.size() - 1]["y"]
 	
-func update_start_end_y(batch):
-	current_batch_start_y = batch[0]["y"]
-	current_batch_start_y = batch[batch.size() - 1]["y"]
-
+func get_end_x(batch):
+	return batch[batch.size() - 1]["x"]
+	
+func get_start_x(batch):
+	return batch[0]["x"]
+	
+func get_start_y(batch):
+	return batch[0]["y"]
+	
 func clear_batch(batch):
 	for i in range(batch.size()):
 		var value = batch[i]
@@ -62,74 +57,81 @@ func generate_batch(start_x, end_x, start_y):
 		elif random < 0.45:
 			c_y = generate_descending_path(c_x, c_y, batch)
 		else:
-			batch.append(add_pipe(c_x, c_y, get_tile("horizontal_both")))
+			batch.append(add_pipe(c_x, c_y, "horizontal_both"))
 				
 	return batch
 	
-func add_pipe(x, y, pipe_id):
+func add_pipe(x, y, pipe_name):
+	var pipe_id = tile_map.tile_set.find_tile_by_name(pipe_name)
 	tile_map.set_cell(x, y, pipe_id)
 	return {"x": x, "y": y}
 
 # This generates the pipe on the left of the map that blocks the player movement.
 func generate_stop_batch(c_x, c_y):
-	var horizontal_size = 5
+	var horizontal_size = 1
 	var vertical_size = 10
 	var batch = []
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_top_right")))
+	batch.append(add_pipe(c_x, c_y, "curve_top_right"))
 	c_y -= 1
 
-	batch.append(add_pipe(c_x, c_y, get_tile("vertical_bottom")))
+	batch.append(add_pipe(c_x, c_y, "vertical_bottom"))
 	c_y -= 1
 	
 	for i in range(vertical_size):
-		batch.append(add_pipe(c_x, c_y, get_tile("vertical")))
+		batch.append(add_pipe(c_x, c_y, "vertical"))
 		c_y -= 1
 	
-	batch.append(add_pipe(c_x, c_y, get_tile("vertical_top")))
+	batch.append(add_pipe(c_x, c_y, "vertical_top"))
 	c_y -= 1
 	
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_bottom_right")))
+	batch.append(add_pipe(c_x, c_y, "curve_bottom_right"))
 	c_x += 1
 
-	batch.append(add_pipe(c_x, c_y, get_tile("horizontal_left")))
+	batch.append(add_pipe(c_x, c_y, "horizontal_left"))
 	c_x += 1
 
 	for i in range(horizontal_size):
-		batch.append(add_pipe(c_x, c_y, get_tile("horizontal_both")))
+		batch.append(add_pipe(c_x, c_y, "horizontal_both"))
 		c_x += 1
 	return batch
 	
 # Generates an ascending path of 1 tile in the x direction.
 func generate_ascending_path(c_x, c_y, batch):
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_left_top")))
+	batch.append(add_pipe(c_x, c_y, "curve_left_top"))
 	c_y -= 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		batch.append(add_pipe(c_x, c_y, get_tile("vertical_both")))
+		batch.append(add_pipe(c_x, c_y, "vertical_both"))
 		c_y -= 1
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_bottom_right")))
+	batch.append(add_pipe(c_x, c_y, "curve_bottom_right"))
 	return c_y
 
 # Generates a descending path of 1 tile in the x direction.
 func generate_descending_path(c_x, c_y, batch):
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_left_bottom")))
+	batch.append(add_pipe(c_x, c_y, "curve_left_bottom"))
 	c_y += 1
 	var random = rand_range(1, 2)
 	for j in range(1, random):
-		batch.append(add_pipe(c_x, c_y, get_tile("vertical_both")))
+		batch.append(add_pipe(c_x, c_y, "vertical_both"))
 		c_y += 1
-	batch.append(add_pipe(c_x, c_y, get_tile("curve_top_right")))
+	batch.append(add_pipe(c_x, c_y, "curve_top_right"))
 	return c_y
 
 # Manage the tile map objects
 func _on_Player_player_location(position_x, position_y):
 	var current_cell_position = floor(position_x / cell_width)
+	var current_batch_start_x = get_start_x(current_batch)
+
 	if current_cell_position > current_batch_start_x + batch_size:
+		# Move on to the right.
 		current_batch_start_x += batch_size
+		# Clear old batches
 		clear_batch(previous_batch)
 		clear_batch(stop_batch)
-		stop_batch = generate_stop_batch(current_batch_start_x - batch_size - 1, current_batch[0]["y"])
+		
 		previous_batch = current_batch
-		current_batch = next_batch		
-		next_batch = generate_batch(current_batch_start_x + batch_size, current_batch_start_x + 2 * batch_size, get_y(current_batch))
+		current_batch = next_batch
+		next_batch = generate_batch(get_end_x(current_batch) + 1, get_end_x(current_batch) + 1 + batch_size, get_end_y(current_batch))
+		stop_batch = generate_stop_batch(get_start_x(previous_batch) - 1, get_start_y(previous_batch))
+		
 

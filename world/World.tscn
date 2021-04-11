@@ -11,10 +11,11 @@ script = ExtResource( 6 )
 
 [node name="EnemyGenerator" parent="." instance=ExtResource( 5 )]
 
+[node name="MapGenerator" parent="." instance=ExtResource( 4 )]
+
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 0, -24 )
-
-[node name="MapGenerator" parent="." instance=ExtResource( 4 )]
+immortal = true
 
 [node name="ParallaxBackground" type="ParallaxBackground" parent="."]
 scroll_ignore_camera_zoom = true

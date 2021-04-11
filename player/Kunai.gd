@@ -2,7 +2,7 @@ extends RigidBody2D
 
 onready var kunai_sprite = $Sprite
 
-var speed = 600
+var speed = 500
 var direction = 0
 
 signal killed_robot
